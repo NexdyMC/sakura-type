@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SakuraType — Hiragana Rush</title>
+
+  <!-- Tailwind CDN (class-based dark mode + sakura palette) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            sakura: {
+              50:  '#fff5f7',
+              100: '#ffe4ea',
+              200: '#ffb7c5',
+              300: '#ff9bb0',
+              400: '#f7728f',
+              500: '#e8547a',
+              600: '#c93d62',
+              700: '#9c2c49',
+              800: '#5c1c2c',
+              900: '#3a141c'
+            }
+          },
+          fontFamily: {
+            jp: ["'Noto Sans JP'", 'sans-serif'],
+            sans: ["'Inter'", 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style/style.css" />
+</head>
+<body class="min-h-screen transition-colors duration-300">
+  <div class="max-w-2xl mx-auto px-4 py-6">
+
+    <!-- ============ MENU SCREEN ============ -->
+    <section id="menu_screen" class="screen flex flex-col items-center justify-center min-h-[80vh] text-center">
+      <div class="sakura-emoji text-6xl mb-4">🌸</div>
+      <h1 class="text-4xl sm:text-5xl font-extrabold mb-2 sakura-title">SakuraType</h1>
+      <p class="text-sm sm:text-base mb-8 opacity-70">Hiragana Rush — belajar huruf Jepang dengan mengetik</p>
+      <div class="flex flex-col gap-3 w-full max-w-xs">
+        <button id="btn_play" class="btn-primary">▶ Play</button>
+        <button id="btn_levels" class="btn-secondary">🗂 Select Category / Level</button>
+        <button id="btn_setting" class="btn-secondary">⚙ Settings</button>
+      </div>
+      <p class="text-xs mt-8 opacity-50">Mirip Monkeytype, tapi untuk Hiragana 🍡</p>
+    </section>
+
+    <!-- ============ CATEGORY / LEVEL SCREEN ============ -->
+    <section id="category_level_screen" class="screen hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold">Pilih Kategori</h2>
+        <button class="btn-back" data-back="menu_screen">←</button>
+      </div>
+
+      <!-- Category tabs -->
+      <div id="category_tabs" class="tab-row mb-5"><!-- filled by JS --></div>
+
+      <!-- Level grid for the active category -->
+      <div id="level_grid" class="level-grid"><!-- filled by JS --></div>
+
+      <p class="text-xs mt-4 opacity-60">💡 Selesaikan sebuah level (point ≥ 100) untuk membuka level berikutnya di kategori yang sama. <b>Master Mix</b> mengacak seluruh karakter yang sudah kamu buka.</p>
+    </section>
+
+    <!-- ============ SETTING SCREEN ============ -->
+    <section id="setting_screen" class="screen hidden">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold">Setting</h2>
+        <button class="btn-back" data-back="menu_screen">←</button>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Tema -->
+        <div class="card">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-semibold">Tema</p>
+              <p class="text-xs opacity-60">Pilih terang atau gelap</p>
+            </div>
+            <div class="toggle-group" id="setting_theme">
+              <button data-theme="light" class="toggle-btn active">Terang</button>
+              <button data-theme="dark" class="toggle-btn">Gelap</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Speedrun -->
+        <div class="card">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-semibold">Mode Speedrun</p>
+              <p class="text-xs opacity-60">Tanpa delay &amp; tanpa peringatan salah. Kalau off, ada info jawaban benar + delay 0,5 detik.</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="setting_speedrun" />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Danger zone -->
+        <div class="card border-2 border-red-300 dark:border-red-800">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-semibold text-red-500">Hapus Data</p>
+              <p class="text-xs opacity-60">Menghapus progress level, high score &amp; setting</p>
+            </div>
+            <button id="btn_delete" class="btn-danger">Delete</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PLAY SCREEN ============ -->
+    <section id="play_screen" class="screen hidden">
+      <!-- navbar -->
+      <div class="navbar flex items-center justify-between mb-2">
+        <div class="flex gap-4 sm:gap-6">
+          <div class="text-center">
+            <p class="text-[10px] uppercase opacity-60">Score</p>
+            <p id="play_score" class="text-lg font-bold">0</p>
+          </div>
+          <div class="text-center">
+            <p class="text-[10px] uppercase opacity-60">Point</p>
+            <p id="play_point" class="text-lg font-bold">0</p>
+          </div>
+        </div>
+        <button class="btn-back" data-back="category_level_screen">✕</button>
+      </div>
+      <p class="text-center text-xs mb-4 opacity-60"><span id="play_mode_label">Gojūon</span> · Level <span id="play_level_label">A</span></p>
+
+      <!-- timer -->
+      <div class="timer-bar mb-6">
+        <div id="timer_fill" class="timer-fill"></div>
+        <span id="timer_text" class="timer-text">60</span>
+      </div>
+
+      <!-- soal -->
+      <div class="text-center my-10">
+        <p id="play_feedback" class="text-sm h-5 mb-2 text-red-500 font-semibold"></p>
+        <label id="play_question" class="block hiragana-char text-7xl sm:text-8xl font-bold mb-6">あ</label>
+        <input
+          id="play_input"
+          type="text"
+          autocomplete="off"
+          autocapitalize="none"
+          spellcheck="false"
+          class="input-answer"
+          placeholder="ketik romaji..."
+        />
+        <p class="text-xs mt-3 opacity-50">Tekan <kbd>Enter</kbd> untuk kirim</p>
+      </div>
+    </section>
+
+    <!-- ============ GAME OVER / LEVEL CLEAR SCREEN ============ -->
+    <section id="game_over" class="screen hidden flex flex-col items-center justify-center min-h-[80vh] text-center">
+      <div class="text-5xl mb-4" id="go_emoji">🎯</div>
+      <h2 id="go_title" class="text-3xl font-extrabold mb-6">Game Over</h2>
+      <div class="card w-full max-w-xs mb-6">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-[10px] uppercase opacity-60">Score</p>
+            <p id="go_score" class="text-2xl font-bold">0</p>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase opacity-60">Point</p>
+            <p id="go_point" class="text-2xl font-bold">0</p>
+          </div>
+        </div>
+      </div>
+      <p id="go_status" class="text-sm mb-6 opacity-70"></p>
+      <div class="flex flex-col gap-3 w-full max-w-xs">
+        <button id="btn_next_level" class="btn-primary hidden">➜ Next Level</button>
+        <button id="btn_replay" class="btn-primary">↻ Replay</button>
+        <button id="btn_menu" class="btn-secondary">⌂ Menu</button>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

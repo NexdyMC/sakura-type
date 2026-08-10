@@ -1,0 +1,304 @@
+/* ==========================================================================
+   SakuraType — component layer (pairs with Tailwind CDN utilities)
+   Palette: cherry blossom pink #ffb7c5 · white · dark slate for dark mode
+   ========================================================================== */
+
+:root{
+  --sakura-bg: #fff5f7;
+  --sakura-bg-soft: #ffe4ea;
+  --sakura-surface: #ffffff;
+  --sakura-line: #ffd3dd;
+  --sakura-ink: #3a141c;
+  --sakura-ink-soft: #8a5c68;
+  --sakura-accent: #e8547a;
+  --sakura-accent-soft: #ffb7c5;
+  --sakura-good: #3f9d63;
+  --sakura-bad: #d94257;
+}
+
+html.dark{
+  --sakura-bg: #171923;
+  --sakura-bg-soft: #1e2029;
+  --sakura-surface: #232634;
+  --sakura-line: #343850;
+  --sakura-ink: #f4eef1;
+  --sakura-ink-soft: #a99bb0;
+  --sakura-accent: #ff8fae;
+  --sakura-accent-soft: #c93d62;
+  --sakura-good: #5fd08a;
+  --sakura-bad: #ff6b7a;
+}
+
+*{ box-sizing: border-box; }
+
+body{
+  background: radial-gradient(120% 140% at 50% -10%, var(--sakura-bg-soft), var(--sakura-bg) 55%);
+  color: var(--sakura-ink);
+  font-family: 'Inter', sans-serif;
+}
+
+.sakura-title, .hiragana-char, #go_emoji, .sakura-emoji{
+  font-family: 'Noto Sans JP', sans-serif;
+}
+.sakura-title{
+  color: var(--sakura-accent);
+  text-shadow: 0 3px 0 var(--sakura-accent-soft);
+}
+
+/* ---------- Screens ---------- */
+.screen.hidden{ display: none; }
+
+/* ---------- Cards & buttons ---------- */
+.card{
+  background: var(--sakura-surface);
+  border: 1px solid var(--sakura-line);
+  border-radius: 18px;
+  padding: 18px 20px;
+  box-shadow: 0 8px 24px -14px rgba(232, 84, 122, .45);
+}
+
+.btn-primary, .btn-secondary, .btn-danger{
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 999px;
+  padding: 13px 24px;
+  cursor: pointer;
+  border: none;
+  transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+}
+.btn-primary:active, .btn-secondary:active, .btn-danger:active{ transform: scale(.96); }
+
+.btn-primary{
+  background: linear-gradient(135deg, var(--sakura-accent), var(--sakura-accent-soft));
+  color: #fff;
+  box-shadow: 0 8px 20px -8px rgba(232, 84, 122, .6);
+}
+.btn-primary:disabled{ opacity: .45; cursor: not-allowed; box-shadow: none; }
+
+.btn-secondary{
+  background: var(--sakura-bg-soft);
+  color: var(--sakura-accent);
+  border: 2px solid var(--sakura-accent-soft);
+}
+
+.btn-danger{
+  background: transparent;
+  color: var(--sakura-bad);
+  border: 2px solid var(--sakura-bad);
+  padding: 8px 18px;
+  font-size: 13px;
+  border-radius: 999px;
+}
+
+.btn-back{
+  background: var(--sakura-bg-soft);
+  color: var(--sakura-ink-soft);
+  border: none;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* ---------- Toggle group (theme) ---------- */
+.toggle-group{
+  display: flex;
+  background: var(--sakura-bg-soft);
+  border-radius: 999px;
+  padding: 4px;
+  border: 1px solid var(--sakura-line);
+}
+.toggle-btn{
+  border: none;
+  background: transparent;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--sakura-ink-soft);
+}
+.toggle-btn.active{
+  background: var(--sakura-accent);
+  color: #fff;
+}
+
+/* ---------- Switch (speedrun) ---------- */
+.switch{ position: relative; display: inline-block; width: 50px; height: 28px; flex-shrink: 0; }
+.switch input{ opacity: 0; width: 0; height: 0; }
+.slider{
+  position: absolute; inset: 0; cursor: pointer;
+  background: var(--sakura-line);
+  border-radius: 999px;
+  transition: background .2s ease;
+}
+.slider::before{
+  content: "";
+  position: absolute;
+  height: 22px; width: 22px;
+  left: 3px; top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,.25);
+}
+.switch input:checked + .slider{ background: var(--sakura-accent); }
+.switch input:checked + .slider::before{ transform: translateX(22px); }
+
+/* ---------- Category tabs ---------- */
+.tab-row{
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+.tab-row::-webkit-scrollbar{ height: 4px; }
+.cat-tab{
+  flex: none;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 2px solid var(--sakura-line);
+  background: var(--sakura-surface);
+  color: var(--sakura-ink-soft);
+  cursor: pointer;
+  transition: all .18s ease;
+}
+.cat-tab.active{
+  background: var(--sakura-accent);
+  border-color: var(--sakura-accent);
+  color: #fff;
+}
+
+/* ---------- Level grid ---------- */
+.level-grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+@media (min-width: 480px){
+  .level-grid{ grid-template-columns: repeat(4, 1fr); }
+}
+.level-card{
+  position: relative;
+  background: var(--sakura-surface);
+  border: 2px solid var(--sakura-line);
+  border-radius: 14px;
+  padding: 14px 8px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform .15s ease, border-color .2s ease;
+  font-family: 'Inter', sans-serif;
+}
+.level-card:not(.locked):hover{ transform: translateY(-3px); border-color: var(--sakura-accent-soft); }
+.level-card .lc-name{
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 900;
+  font-size: 16px;
+  color: var(--sakura-accent);
+}
+.level-card .lc-high{
+  font-size: 10px;
+  color: var(--sakura-ink-soft);
+  margin-top: 4px;
+}
+.level-card.cleared{ border-color: var(--sakura-good); }
+.level-card.cleared::after{
+  content: "✓";
+  position: absolute;
+  top: -7px; right: -7px;
+  width: 20px; height: 20px;
+  background: var(--sakura-good);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 11px;
+  display: flex; align-items: center; justify-content: center;
+}
+.level-card.locked{
+  opacity: .4;
+  cursor: not-allowed;
+}
+.level-card.master{
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, var(--sakura-accent), var(--sakura-accent-soft));
+}
+.level-card.master .lc-name, .level-card.master .lc-high{ color: #fff; }
+
+/* ---------- Play screen ---------- */
+.navbar{
+  background: var(--sakura-surface);
+  border: 1px solid var(--sakura-line);
+  border-radius: 999px;
+  padding: 8px 18px;
+}
+
+.timer-bar{
+  position: relative;
+  height: 26px;
+  background: var(--sakura-bg-soft);
+  border: 1px solid var(--sakura-line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.timer-fill{
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--sakura-accent), var(--sakura-accent-soft));
+  transition: width 1s linear, background .3s ease;
+}
+.timer-fill.warn{ background: linear-gradient(90deg, var(--sakura-bad), #f2a154); }
+.timer-text{
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sakura-ink);
+}
+
+.hiragana-char{
+  color: var(--sakura-ink);
+  transition: transform .12s ease, color .12s ease;
+}
+.hiragana-char.shake{ animation: shake .35s ease; color: var(--sakura-bad); }
+.hiragana-char.pop{ animation: pop .35s ease; }
+@keyframes shake{
+  0%, 100%{ transform: translateX(0); }
+  25%{ transform: translateX(-10px); }
+  75%{ transform: translateX(10px); }
+}
+@keyframes pop{
+  0%{ transform: scale(1); }
+  40%{ transform: scale(1.15); color: var(--sakura-good); }
+  100%{ transform: scale(1); }
+}
+
+.input-answer{
+  width: 100%;
+  max-width: 280px;
+  font-family: 'Inter', sans-serif;
+  font-size: 20px;
+  text-align: center;
+  padding: 14px;
+  border-radius: 14px;
+  border: 2px solid var(--sakura-line);
+  background: var(--sakura-surface);
+  color: var(--sakura-ink);
+  outline: none;
+  transition: border-color .2s ease;
+}
+.input-answer:focus{ border-color: var(--sakura-accent); }
+
+kbd{
+  background: var(--sakura-bg-soft);
+  border: 1px solid var(--sakura-line);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: 'Inter', sans-serif;
+}
