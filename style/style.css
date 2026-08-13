@@ -31,10 +31,13 @@ html.dark{
 
 *{ box-sizing: border-box; }
 
+html, body{ height: 100%; }
+
 body{
   background: radial-gradient(120% 140% at 50% -10%, var(--sakura-bg-soft), var(--sakura-bg) 55%);
   color: var(--sakura-ink);
   font-family: 'Inter', sans-serif;
+  position: relative;
 }
 
 .sakura-title, .hiragana-char, #go_emoji, .sakura-emoji{
@@ -43,6 +46,120 @@ body{
 .sakura-title{
   color: var(--sakura-accent);
   text-shadow: 0 3px 0 var(--sakura-accent-soft);
+}
+
+/* ---------- Loading screen ---------- */
+.loading-screen{
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(120% 140% at 50% -10%, var(--sakura-bg-soft), var(--sakura-bg) 55%);
+  color: var(--sakura-ink);
+}
+.loading-screen.hidden{ display: none; }
+.loading-emoji{ animation: loading-spin 2.2s linear infinite; }
+@keyframes loading-spin{
+  0%{ transform: rotate(0deg); }
+  100%{ transform: rotate(360deg); }
+}
+.loading-title{
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  color: var(--sakura-accent);
+}
+.loading-status{
+  font-size: 13px;
+  color: var(--sakura-ink-soft);
+  margin-top: 6px;
+}
+.loading-bar{
+  width: 180px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--sakura-bg-soft);
+  border: 1px solid var(--sakura-line);
+  overflow: hidden;
+  margin-top: 16px;
+}
+.loading-bar-fill{
+  height: 100%;
+  width: 10%;
+  background: linear-gradient(90deg, var(--sakura-accent), var(--sakura-accent-soft));
+  transition: width .3s ease;
+}
+
+/* ---------- Falling sakura petals ---------- */
+#petal-layer{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  display: none;
+}
+#petal-layer.active{ display: block; }
+.petal{
+  position: absolute;
+  top: -5%;
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(135deg, var(--sakura-accent-soft), var(--sakura-accent));
+  border-radius: 60% 10% 60% 10%;
+  opacity: .55;
+  animation-name: petal-fall, petal-sway;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+  will-change: transform;
+}
+@keyframes petal-fall{
+  from{ transform: translateY(-10vh) rotate(0deg); }
+  to{ transform: translateY(110vh) rotate(340deg); }
+}
+@keyframes petal-sway{
+  0%, 100%{ margin-left: 0px; }
+  50%{ margin-left: 40px; }
+}
+
+#app_shell{ position: relative; z-index: 1; }
+#app_shell.hidden{ display: none; }
+
+/* ---------- Main navbar (alphabet switcher) ---------- */
+.main-nav{
+  display: flex;
+  gap: 8px;
+  background: var(--sakura-surface);
+  border: 1px solid var(--sakura-line);
+  border-radius: 999px;
+  padding: 5px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 20px -14px rgba(232, 84, 122, .5);
+}
+.main-nav-btn{
+  flex: 1;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 9px 10px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--sakura-ink-soft);
+  cursor: pointer;
+  transition: all .18s ease;
+}
+.main-nav-btn.active{
+  background: var(--sakura-accent);
+  color: #fff;
+}
+.main-nav-btn.disabled{
+  opacity: .35;
+  cursor: not-allowed;
+  text-decoration: line-through;
 }
 
 /* ---------- Screens ---------- */
@@ -125,7 +242,7 @@ body{
   color: #fff;
 }
 
-/* ---------- Switch (speedrun) ---------- */
+/* ---------- Switch (speedrun / sakura fall) ---------- */
 .switch{ position: relative; display: inline-block; width: 50px; height: 28px; flex-shrink: 0; }
 .switch input{ opacity: 0; width: 0; height: 0; }
 .slider{
@@ -200,8 +317,9 @@ body{
 .level-card .lc-name{
   font-family: 'Noto Sans JP', sans-serif;
   font-weight: 900;
-  font-size: 16px;
+  font-size: 14px;
   color: var(--sakura-accent);
+  line-height: 1.25;
 }
 .level-card .lc-high{
   font-size: 10px;
@@ -224,11 +342,20 @@ body{
   opacity: .4;
   cursor: not-allowed;
 }
-.level-card.master{
+.level-card.boss{
   grid-column: 1 / -1;
   background: linear-gradient(135deg, var(--sakura-accent), var(--sakura-accent-soft));
 }
-.level-card.master .lc-name, .level-card.master .lc-high{ color: #fff; }
+.level-card.boss .lc-name, .level-card.boss .lc-high{ color: #fff; }
+
+/* ---------- Empty / disabled category state ---------- */
+.empty-state{
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--sakura-ink-soft);
+  font-size: 13px;
+}
 
 /* ---------- Play screen ---------- */
 .navbar{

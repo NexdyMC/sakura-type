@@ -1,57 +1,42 @@
-{
-  "categories": {
-    "dasar": {
-      "label": "Gojūon (Dasar)",
-      "levels": [
-        { "level": 1, "name": "A",  "characters": ["あ","い","う","え","お"], "value": ["a","i","u","e","o"], "aliases": [["a"],["i"],["u"],["e"],["o"]], "max_point": 100, "time": 60 },
-        { "level": 2, "name": "Ka", "characters": ["か","き","く","け","こ"], "value": ["ka","ki","ku","ke","ko"], "aliases": [["ka"],["ki"],["ku"],["ke"],["ko"]], "max_point": 100, "time": 60 },
-        { "level": 3, "name": "Sa", "characters": ["さ","し","す","せ","そ"], "value": ["sa","shi","su","se","so"], "aliases": [["sa"],["shi","si"],["su"],["se"],["so"]], "max_point": 100, "time": 60 },
-        { "level": 4, "name": "Ta", "characters": ["た","ち","つ","て","と"], "value": ["ta","chi","tsu","te","to"], "aliases": [["ta"],["chi"],["tsu"],["te"],["to"]], "max_point": 100, "time": 60 },
-        { "level": 5, "name": "Na", "characters": ["な","に","ぬ","ね","の"], "value": ["na","ni","nu","ne","no"], "aliases": [["na"],["ni"],["nu"],["ne"],["no"]], "max_point": 100, "time": 60 },
-        { "level": 6, "name": "Ha", "characters": ["は","ひ","ふ","へ","ほ"], "value": ["ha","hi","fu","he","ho"], "aliases": [["ha"],["hi"],["fu","hu"],["he"],["ho"]], "max_point": 100, "time": 60 },
-        { "level": 7, "name": "Ma", "characters": ["ま","み","む","め","も"], "value": ["ma","mi","mu","me","mo"], "aliases": [["ma"],["mi"],["mu"],["me"],["mo"]], "max_point": 100, "time": 60 },
-        { "level": 8, "name": "Ya", "characters": ["や","ゆ","よ"], "value": ["ya","yu","yo"], "aliases": [["ya"],["yu"],["yo"]], "max_point": 100, "time": 60 },
-        { "level": 9, "name": "Ra", "characters": ["ら","り","る","れ","ろ"], "value": ["ra","ri","ru","re","ro"], "aliases": [["ra"],["ri"],["ru"],["re"],["ro"]], "max_point": 100, "time": 60 },
-        { "level": 10, "name": "Wa", "characters": ["わ","を"], "value": ["wa","wo"], "aliases": [["wa"],["wo","o"]], "max_point": 100, "time": 60 },
-        { "level": 11, "name": "N", "characters": ["ん"], "value": ["n"], "aliases": [["n","nn"]], "max_point": 100, "time": 60 },
-        { "level": 12, "name": "sama","characters": ["ね", "れ", "わ", "る", "ろ", "め", "ぬ", "さ", "き", "ち", "は", "ほ", "ま", "も"],"value": ["ne", "re", "wa", "ru", "ro", "me", "nu", "sa", "ki", "chi", "ha", "ho", "ma", "mo"],"aliases": [["ne"], ["re"], ["wa"], ["ru"], ["ro"], ["me"], ["nu"], ["sa"], ["ki"], ["chi", "ti"],["ha", "wa"], ["ho"], ["ma"], ["mo"]],"max_point": 100,"time": 60},
-        { "level": 13, "name": "Unik", "characters": ["あ", "お", "む", "よ", "ふ", "す"], "value": ["a", "o", "mu", "yo", "fu", "su"], "aliases": [["a"], ["o"], ["mu"], ["yo"], ["fu"], ["su"]], "max_point": 100, "time": 60},
-        { "level": 14, "name": "Susah Diingat", "characters": ["む", "ふ", "そ", "ぬ", "え", "ゆ", "を"], "value": ["mu", "fu", "so", "nu", "e", "yu", "wo"], "aliases": [["mu"], ["fu", "hu"], ["so"], ["nu"], ["e"], ["yu"], ["wo", "o"]], "max_point": 100, "time": 60},
-        { "level": 15, "name": "Satu Goresan", "characters": ["し", "く", "つ", "へ", "の", "ろ"], "value": ["shi", "ku", "tsu", "he", "no", "ro"], "aliases": [["shi", "si"], ["ku"], ["tsu", "tu"], ["he"], ["no"], ["ro"]], "max_point": 100, "time": 60},
-        { "level": 16, "name": "Khusus", "characters": ["や", "ゆ", "よ", "わ", "を", "ん"], "value": ["ya", "yu", "yo", "wa", "wo", "n"], "aliases": [["ya"], ["yu"], ["yo"], ["wa"], ["wo", "o"], ["n", "nn"]], "max_point": 100, "time": 60},
-        { "level": 17, "name": "all Hiragana", "characters": ["あ", "い", "う", "え", "お", "か", "き", "く", "け", "こ", "さ", "し", "す", "せ", "そ", "た", "ち", "つ", "て", "と", "な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ", "へ", "ほ", "ま", "み", "む", "め", "も", "や", "ゆ", "よ", "ら", "り", "る", "れ", "ろ", "わ", "を", "ん"], "value": ["a", "i", "u", "e", "o", "ka", "ki", "ku", "ke", "ko", "sa", "shi", "su", "se", "so", "ta", "chi", "tsu", "te", "to", "na", "ni", "nu", "ne", "no", "ha", "hi", "fu", "he", "ho", "ma", "mi", "mu", "me", "mo", "ya", "yu", "yo", "ra", "ri", "ru", "re", "ro", "wa", "wo", "n"], "aliases": [["a"], ["i"], ["u"], ["e"], ["o"], ["ka"], ["ki"], ["ku"], ["ke"], ["ko"], ["sa"], ["shi", "si"], ["su"], ["se"], ["so"], ["ta"], ["chi", "ti"], ["tsu", "tu"], ["te"], ["to"], ["na"], ["ni"], ["nu"], ["ne"], ["no"], ["ha", "wa"], ["hi"], ["fu", "hu"], ["he", "e"], ["ho"], ["ma"], ["mi"], ["mu"], ["me"], ["mo"], ["ya"], ["yu"], ["yo"], ["ra"], ["ri"], ["ru"], ["re"], ["ro"], ["wa"], ["wo", "o"], ["n", "nn"]], "max_point": 300, "time": 180}
-      ]
-    },
-    "dakuten": {
-      "label": "Dakuten (゛)",
-      "levels": [
-        { "level": 18, "name": "Ga", "characters": ["が","ぎ","ぐ","げ","ご"], "value": ["ga","gi","gu","ge","go"], "aliases": [["ga"],["gi"],["gu"],["ge"],["go"]], "max_point": 100, "time": 60 },
-        { "level": 19, "name": "Za", "characters": ["ざ","じ","ず","ぜ","ぞ"], "value": ["za","ji","zu","ze","zo"], "aliases": [["za"],["ji","zi"],["zu"],["ze"],["zo"]], "max_point": 100, "time": 60 },
-        { "level": 20, "name": "Da", "characters": ["だ","ぢ","づ","で","ど"], "value": ["da","ji","zu","de","do"], "aliases": [["da"],["ji","di","zi"],["zu","du"],["de"],["do"]], "max_point": 100, "time": 60 },
-        { "level": 21, "name": "Ba", "characters": ["ば","び","ぶ","べ","ぼ"], "value": ["ba","bi","bu","be","bo"], "aliases": [["ba"],["bi"],["bu"],["be"],["bo"]], "max_point": 100, "time": 60 }
-      ]
-    },
-    "handakuten": {
-      "label": "Handakuten (゜)",
-      "levels": [
-        { "level": 22, "name": "Pa", "characters": ["ぱ","ぴ","ぷ","ぺ","ぽ"], "value": ["pa","pi","pu","pe","po"], "aliases": [["pa"],["pi"],["pu"],["pe"],["po"]], "max_point": 100, "time": 60 }
-      ]
-    },
-    "yoon": {
-      "label": "Yōon (Kombinasi)",
-      "levels": [
-        { "level": 23,  "name": "Kya", "characters": ["きゃ","きゅ","きょ"], "value": ["kya","kyu","kyo"], "aliases": [["kya"],["kyu"],["kyo"]], "max_point": 100, "time": 60 },
-        { "level": 24,  "name": "Sha", "characters": ["しゃ","しゅ","しょ"], "value": ["sha","shu","sho"], "aliases": [["sha","sya"],["shu","syu"],["sho","syo"]], "max_point": 100, "time": 60 },
-        { "level": 25,  "name": "Cha", "characters": ["ちゃ","ちゅ","ちょ"], "value": ["cha","chu","cho"], "aliases": [["cha","tya"],["chu","tyu"],["cho","tyo"]], "max_point": 100, "time": 60 },
-        { "level": 26,  "name": "Nya", "characters": ["にゃ","にゅ","にょ"], "value": ["nya","nyu","nyo"], "aliases": [["nya"],["nyu"],["nyo"]], "max_point": 100, "time": 60 },
-        { "level": 27,  "name": "Hya", "characters": ["ひゃ","ひゅ","ひょ"], "value": ["hya","hyu","hyo"], "aliases": [["hya"],["hyu"],["hyo"]], "max_point": 100, "time": 60 },
-        { "level": 28,  "name": "Mya", "characters": ["みゃ","みゅ","みょ"], "value": ["mya","myu","myo"], "aliases": [["mya"],["myu"],["myo"]], "max_point": 100, "time": 60 },
-        { "level": 29,  "name": "Rya", "characters": ["りゃ","りゅ","りょ"], "value": ["rya","ryu","ryo"], "aliases": [["rya"],["ryu"],["ryo"]], "max_point": 100, "time": 60 },
-        { "level": 30,  "name": "Gya", "characters": ["ぎゃ","ぎゅ","ぎょ"], "value": ["gya","gyu","gyo"], "aliases": [["gya"],["gyu"],["gyo"]], "max_point": 100, "time": 60 },
-        { "level": 31,  "name": "Ja",  "characters": ["じゃ","じゅ","じょ"], "value": ["ja","ju","jo"], "aliases": [["ja","zya","jya"],["ju","zyu","jyu"],["jo","zyo","jyo"]], "max_point": 100, "time": 60 },
-        { "level": 32, "name": "Bya", "characters": ["びゃ","びゅ","びょ"], "value": ["bya","byu","byo"], "aliases": [["bya"],["byu"],["byo"]], "max_point": 100, "time": 60 },
-        { "level": 33, "name": "Pya", "characters": ["ぴゃ","ぴゅ","ぴょ"], "value": ["pya","pyu","pyo"], "aliases": [["pya"],["pyu"],["pyo"]], "max_point": 100, "time": 60 }
-      ]
-    }
-  }
-}
+[
+{"alphabet": "hiragana", "category": "gojuon", "level": 1, "name": "Vokal (A, I, U, E, O)", "characters": ["あ", "い", "う", "え", "お"], "value": ["a", "i", "u", "e", "o"], "aliases": [["a"], ["i"], ["u"], ["e"], ["o"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "gojuon", "level": 2, "name": "Baris Ka", "characters": ["か", "き", "く", "け", "こ"], "value": ["ka", "ki", "ku", "ke", "ko"], "aliases": [["ka"], ["ki"], ["ku"], ["ke"], ["ko"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "gojuon", "level": 3, "name": "Baris Sa", "characters": ["さ", "し", "す", "せ", "そ"], "value": ["sa", "shi", "su", "se", "so"], "aliases": [["sa"], ["shi", "si"], ["su"], ["se"], ["so"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "gojuon", "level": 4, "name": "Baris Ta", "characters": ["た", "ち", "つ", "て", "と"], "value": ["ta", "chi", "tsu", "te", "to"], "aliases": [["ta"], ["chi", "ti"], ["tsu", "tu"], ["te"], ["to"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "gojuon", "level": 5, "name": "Baris Na", "characters": ["な", "に", "ぬ", "ね", "の"], "value": ["na", "ni", "nu", "ne", "no"], "aliases": [["na"], ["ni"], ["nu"], ["ne"], ["no"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "gojuon", "level": 6, "name": "Baris Ha", "characters": ["は", "ひ", "ふ", "へ", "ほ"], "value": ["ha", "hi", "fu", "he", "ho"], "aliases": [["ha"], ["hi"], ["fu", "hu"], ["he"], ["ho"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "gojuon", "level": 7, "name": "Baris Ma", "characters": ["ま", "み", "む", "め", "も"], "value": ["ma", "mi", "mu", "me", "mo"], "aliases": [["ma"], ["mi"], ["mu"], ["me"], ["mo"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "gojuon", "level": 8, "name": "Baris Ya", "characters": ["や", "ゆ", "よ"], "value": ["ya", "yu", "yo"], "aliases": [["ya"], ["yu"], ["yo"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "gojuon", "level": 9, "name": "Baris Ra", "characters": ["ら", "り", "る", "れ", "ろ"], "value": ["ra", "ri", "ru", "re", "ro"], "aliases": [["ra"], ["ri"], ["ru"], ["re"], ["ro"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "gojuon", "level": 10, "name": "Baris Wa & N", "characters": ["わ", "を", "ん"], "value": ["wa", "wo", "n"], "aliases": [["wa"], ["wo", "o"], ["n", "nn"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "gojuon", "level": 11, "name": "Kolom A", "characters": ["あ", "か", "さ", "た", "な", "は", "ま", "や", "ら", "わ"], "value": ["a", "ka", "sa", "ta", "na", "ha", "ma", "ya", "ra", "wa"], "aliases": [["a"], ["ka"], ["sa"], ["ta"], ["na"], ["ha"], ["ma"], ["ya"], ["ra"], ["wa"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "gojuon", "level": 12, "name": "Kolom I", "characters": ["い", "き", "し", "ち", "に", "ひ", "み", "り"], "value": ["i", "ki", "shi", "chi", "ni", "hi", "mi", "ri"], "aliases": [["i"], ["ki"], ["shi", "si"], ["chi", "ti"], ["ni"], ["hi"], ["mi"], ["ri"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "gojuon", "level": 13, "name": "Kolom U", "characters": ["う", "く", "す", "つ", "ぬ", "ふ", "む", "ゆ", "る"], "value": ["u", "ku", "su", "tsu", "nu", "fu", "mu", "yu", "ru"], "aliases": [["u"], ["ku"], ["su"], ["tsu", "tu"], ["nu"], ["fu", "hu"], ["mu"], ["yu"], ["ru"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "gojuon", "level": 14, "name": "Kolom E", "characters": ["え", "け", "せ", "て", "ね", "へ", "め", "れ"], "value": ["e", "ke", "se", "te", "ne", "he", "me", "re"], "aliases": [["e"], ["ke"], ["se"], ["te"], ["ne"], ["he"], ["me"], ["re"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "gojuon", "level": 15, "name": "Kolom O", "characters": ["お", "こ", "そ", "と", "の", "ほ", "も", "よ", "ろ", "を"], "value": ["o", "ko", "so", "to", "no", "ho", "mo", "yo", "ro", "wo"], "aliases": [["o"], ["ko"], ["so"], ["to"], ["no"], ["ho"], ["mo"], ["yo"], ["ro"], ["wo", "o"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "master_mix", "level": 16, "name": "Karakter Satu Goresan", "characters": ["く", "し", "つ", "へ", "の", "ん"], "value": ["ku", "shi", "tsu", "he", "no", "n"], "aliases": [["ku"], ["shi", "si"], ["tsu", "tu"], ["he"], ["no"], ["n", "nn"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "master_mix", "level": 17, "name": "Karakter Dua Goresan", "characters": ["い", "こ", "す", "に", "は", "り"], "value": ["i", "ko", "su", "ni", "ha", "ri"], "aliases": [["i"], ["ko"], ["su"], ["ni"], ["ha"], ["ri"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "master_mix", "level": 18, "name": "Karakter Tiga Goresan", "characters": ["あ", "う", "え", "き", "さ", "ち"], "value": ["a", "u", "e", "ki", "sa", "chi"], "aliases": [["a"], ["u"], ["e"], ["ki"], ["sa"], ["chi", "ti"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "master_mix", "level": 19, "name": "Karakter Empat Goresan", "characters": ["か", "な", "ほ", "む", "ゆ", "れ"], "value": ["ka", "na", "ho", "mu", "yu", "re"], "aliases": [["ka"], ["na"], ["ho"], ["mu"], ["yu"], ["re"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "master_mix", "level": 20, "name": "Karakter Mirip Katakana", "characters": ["へ", "く", "り", "め", "も", "せ"], "value": ["he", "ku", "ri", "me", "mo", "se"], "aliases": [["he"], ["ku"], ["ri"], ["me"], ["mo"], ["se"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "master_mix", "level": 21, "name": "Karakter yang Saling Mirip Bentuknya", "characters": ["ぬ", "め", "わ", "れ", "ね", "る", "ろ", "は"], "value": ["nu", "me", "wa", "re", "ne", "ru", "ro", "ha"], "aliases": [["nu"], ["me"], ["wa"], ["re"], ["ne"], ["ru"], ["ro"], ["ha"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "master_mix", "level": 22, "name": "Karakter yang Susah Diingat", "characters": ["む", "ふ", "そ", "ぬ", "え", "ゆ", "を"], "value": ["mu", "fu", "so", "nu", "e", "yu", "wo"], "aliases": [["mu"], ["fu", "hu"], ["so"], ["nu"], ["e"], ["yu"], ["wo", "o"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "master_mix", "level": 23, "name": "Karakter Punya Putaran (Loop)", "characters": ["ぬ", "む", "の", "あ", "お", "る"], "value": ["nu", "mu", "no", "a", "o", "ru"], "aliases": [["nu"], ["mu"], ["no"], ["a"], ["o"], ["ru"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "master_mix", "level": 24, "name": "Final Boss: Semua Karakter", "characters": ["あ", "い", "う", "え", "お", "か", "き", "く", "け", "こ", "さ", "し", "す", "せ", "そ", "た", "ち", "つ", "て", "と", "な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ", "へ", "ほ", "ま", "み", "む", "め", "も", "や", "ゆ", "よ", "ら", "り", "る", "れ", "ろ", "わ", "を", "ん"], "value": ["a", "i", "u", "e", "o", "ka", "ki", "ku", "ke", "ko", "sa", "shi", "su", "se", "so", "ta", "chi", "tsu", "te", "to", "na", "ni", "nu", "ne", "no", "ha", "hi", "fu", "he", "ho", "ma", "mi", "mu", "me", "mo", "ya", "yu", "yo", "ra", "ri", "ru", "re", "ro", "wa", "wo", "n"], "aliases": [["a"], ["i"], ["u"], ["e"], ["o"], ["ka"], ["ki"], ["ku"], ["ke"], ["ko"], ["sa"], ["shi", "si"], ["su"], ["se"], ["so"], ["ta"], ["chi", "ti"], ["tsu", "tu"], ["te"], ["to"], ["na"], ["ni"], ["nu"], ["ne"], ["no"], ["ha"], ["hi"], ["fu", "hu"], ["he"], ["ho"], ["ma"], ["mi"], ["mu"], ["me"], ["mo"], ["ya"], ["yu"], ["yo"], ["ra"], ["ri"], ["ru"], ["re"], ["ro"], ["wa"], ["wo", "o"], ["n", "nn"]], "max_point": 300, "time": 180},
+{"alphabet": "hiragana", "category": "dakuten_handakuten", "level": 25, "name": "Ga", "characters": ["が", "ぎ", "ぐ", "げ", "ご"], "value": ["ga", "gi", "gu", "ge", "go"], "aliases": [["ga"], ["gi"], ["gu"], ["ge"], ["go"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "dakuten_handakuten", "level": 26, "name": "Za", "characters": ["ざ", "じ", "ず", "ぜ", "ぞ"], "value": ["za", "ji", "zu", "ze", "zo"], "aliases": [["za"], ["ji", "zi"], ["zu"], ["ze"], ["zo"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "dakuten_handakuten", "level": 27, "name": "Da", "characters": ["だ", "ぢ", "づ", "で", "ど"], "value": ["da", "ji", "zu", "de", "do"], "aliases": [["da"], ["ji", "di", "zi"], ["zu", "du"], ["de"], ["do"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "dakuten_handakuten", "level": 28, "name": "Ba", "characters": ["ば", "び", "ぶ", "べ", "ぼ"], "value": ["ba", "bi", "bu", "be", "bo"], "aliases": [["ba"], ["bi"], ["bu"], ["be"], ["bo"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "dakuten_handakuten", "level": 29, "name": "Pa", "characters": ["ぱ", "ぴ", "ぷ", "ぺ", "ぽ"], "value": ["pa", "pi", "pu", "pe", "po"], "aliases": [["pa"], ["pi"], ["pu"], ["pe"], ["po"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "yoon", "level": 30, "name": "Kya", "characters": ["きゃ", "きゅ", "きょ"], "value": ["kya", "kyu", "kyo"], "aliases": [["kya"], ["kyu"], ["kyo"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "yoon", "level": 31, "name": "Sha", "characters": ["しゃ", "しゅ", "しょ"], "value": ["sha", "shu", "sho"], "aliases": [["sha", "sya"], ["shu", "syu"], ["sho", "syo"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "yoon", "level": 32, "name": "Cha", "characters": ["ちゃ", "ちゅ", "ちょ"], "value": ["cha", "chu", "cho"], "aliases": [["cha", "tya"], ["chu", "tyu"], ["cho", "tyo"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "yoon", "level": 33, "name": "Nya", "characters": ["にゃ", "にゅ", "にょ"], "value": ["nya", "nyu", "nyo"], "aliases": [["nya"], ["nyu"], ["nyo"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "yoon", "level": 34, "name": "Hya", "characters": ["ひゃ", "ひゅ", "ひょ"], "value": ["hya", "hyu", "hyo"], "aliases": [["hya"], ["hyu"], ["hyo"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "yoon", "level": 35, "name": "Mya", "characters": ["みゃ", "みゅ", "みょ"], "value": ["mya", "myu", "myo"], "aliases": [["mya"], ["myu"], ["myo"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "yoon", "level": 36, "name": "Rya", "characters": ["りゃ", "りゅ", "りょ"], "value": ["rya", "ryu", "ryo"], "aliases": [["rya"], ["ryu"], ["ryo"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "yoon", "level": 37, "name": "Gya", "characters": ["ぎゃ", "ぎゅ", "ぎょ"], "value": ["gya", "gyu", "gyo"], "aliases": [["gya"], ["gyu"], ["gyo"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "yoon", "level": 38, "name": "Ja", "characters": ["じゃ", "じゅ", "じょ"], "value": ["ja", "ju", "jo"], "aliases": [["ja", "zya", "jya"], ["ju", "zyu", "jyu"], ["jo", "zyo", "jyo"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "yoon", "level": 39, "name": "Bya", "characters": ["びゃ", "びゅ", "びょ"], "value": ["bya", "byu", "byo"], "aliases": [["bya"], ["byu"], ["byo"]], "max_point": 100, "time": 60},
+{"alphabet": "hiragana", "category": "yoon", "level": 40, "name": "Pya", "characters": ["ぴゃ", "ぴゅ", "ぴょ"], "value": ["pya", "pyu", "pyo"], "aliases": [["pya"], ["pyu"], ["pyo"]], "max_point": 100, "time": 60}
+]

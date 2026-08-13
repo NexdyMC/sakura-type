@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SakuraType — Hiragana Rush</title>
+  <title>SakuraType — Belajar Aksara Jepang</title>
 
   <!-- Tailwind CDN (class-based dark mode + sakura palette) -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -47,35 +47,54 @@
   <link rel="stylesheet" href="style/style.css" />
 </head>
 <body class="min-h-screen transition-colors duration-300">
-  <div class="max-w-2xl mx-auto px-4 py-6">
+
+  <!-- Falling sakura petal ambience (toggle in Settings) -->
+  <div id="petal-layer"></div>
+
+  <!-- ============ LOADING SCREEN ============ -->
+  <div id="loading_screen" class="loading-screen">
+    <div class="text-6xl mb-3 loading-emoji">🌸</div>
+    <p class="loading-title">SakuraType</p>
+    <p id="loading_status" class="loading-status">Memuat data aksara…</p>
+    <div class="loading-bar"><div id="loading_bar_fill" class="loading-bar-fill"></div></div>
+  </div>
+
+  <div id="app_shell" class="max-w-2xl mx-auto px-4 py-6 hidden">
 
     <!-- ============ MENU SCREEN ============ -->
-    <section id="menu_screen" class="screen flex flex-col items-center justify-center min-h-[80vh] text-center">
+    <section id="menu_screen" class="screen flex flex-col items-center justify-center min-h-[90vh] text-center py-auto">
       <div class="sakura-emoji text-6xl mb-4">🌸</div>
       <h1 class="text-4xl sm:text-5xl font-extrabold mb-2 sakura-title">SakuraType</h1>
-      <p class="text-sm sm:text-base mb-8 opacity-70">Hiragana Rush — belajar huruf Jepang dengan mengetik</p>
+      <p class="text-sm sm:text-base mb-8 opacity-70">Belajar aksara Jepang dengan mengetik dan mengingat</p>
       <div class="flex flex-col gap-3 w-full max-w-xs">
         <button id="btn_play" class="btn-primary">▶ Play</button>
         <button id="btn_levels" class="btn-secondary">🗂 Select Category / Level</button>
         <button id="btn_setting" class="btn-secondary">⚙ Settings</button>
       </div>
-      <p class="text-xs mt-8 opacity-50">Mirip Monkeytype, tapi untuk Hiragana 🍡</p>
+      <p class="text-xs mt-8 opacity-50">Mirip Monkeytype, tapi untuk aksara Jepang 🍡</p>
     </section>
 
     <!-- ============ CATEGORY / LEVEL SCREEN ============ -->
     <section id="category_level_screen" class="screen hidden">
+      <!-- ============ MAIN NAVBAR (Hiragana / Katakana / Kanji) ============ -->
+      <nav id="main_nav" class="main-nav">
+        <button class="main-nav-btn" data-alphabet="hiragana">あ Hiragana</button>
+        <button class="main-nav-btn" data-alphabet="katakana">ア Katakana</button>
+        <button class="main-nav-btn" data-alphabet="kanji">漢 Kanji</button>
+      </nav>
+
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-2xl font-bold">Pilih Kategori</h2>
         <button class="btn-back" data-back="menu_screen">←</button>
       </div>
 
-      <!-- Category tabs -->
+      <!-- Sub-tabs: Gojūon / Dakuten & Handakuten / Yōon / Master Mix -->
       <div id="category_tabs" class="tab-row mb-5"><!-- filled by JS --></div>
 
       <!-- Level grid for the active category -->
       <div id="level_grid" class="level-grid"><!-- filled by JS --></div>
 
-      <p class="text-xs mt-4 opacity-60">💡 Selesaikan sebuah level (point ≥ 100) untuk membuka level berikutnya di kategori yang sama. <b>Master Mix</b> mengacak seluruh karakter yang sudah kamu buka.</p>
+      <p class="text-xs mt-4 opacity-60">💡 Selesaikan sebuah level (point ≥ target) untuk membuka level berikutnya di kategori yang sama.</p>
     </section>
 
     <!-- ============ SETTING SCREEN ============ -->
@@ -97,6 +116,20 @@
               <button data-theme="light" class="toggle-btn active">Terang</button>
               <button data-theme="dark" class="toggle-btn">Gelap</button>
             </div>
+          </div>
+        </div>
+
+        <!-- Sakura gugur -->
+        <div class="card">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-semibold">🌸 Sakura Gugur</p>
+              <p class="text-xs opacity-60">Animasi kelopak sakura berguguran sebagai hiasan latar.</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="setting_sakura_fall" checked />
+              <span class="slider"></span>
+            </label>
           </div>
         </div>
 
@@ -169,7 +202,7 @@
     </section>
 
     <!-- ============ GAME OVER / LEVEL CLEAR SCREEN ============ -->
-    <section id="game_over" class="screen hidden flex flex-col items-center justify-center min-h-[80vh] text-center">
+    <section id="game_over" class="screen hidden flex flex-col items-center justify-center min-h-[70vh] text-center">
       <div class="text-5xl mb-4" id="go_emoji">🎯</div>
       <h2 id="go_title" class="text-3xl font-extrabold mb-6">Game Over</h2>
       <div class="card w-full max-w-xs mb-6">

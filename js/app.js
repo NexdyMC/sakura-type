@@ -1,71 +1,103 @@
 /* ==========================================================================
    SakuraType — app.js
-   Game logic, state management, timer, input validation, LocalStorage.
-   Data source: hiragana.json (katakana.json / kanji.json can be added later
-   by extending DATA_SOURCES below — the rest of the engine is generic).
+   Loading screen, multi-alphabet navbar (Hiragana/Katakana/Kanji), JSON-driven
+   sub-tabs & level grid, timer, scoring, LocalStorage progress, sakura petals.
    ========================================================================== */
 
 const DATA_SOURCES = {
-  hiragana: 'data/hiragana.json'
-  // katakana: 'katakana.json',
-  // kanji: 'kanji.json'
+  hiragana: 'data/hiragana.json',
+  katakana: 'data/katakana.json',
+  kanji: 'data/kanji.json' // not shipped yet -> nav tab auto-disables
 };
-const ACTIVE_SCRIPT = 'hiragana'; // switch when katakana/kanji are added
+
+const CATEGORY_LABELS = {
+  gojuon: 'Gojūon',
+  dakuten_handakuten: 'Dakuten & Handakuten',
+  yoon: 'Yōon',
+  master_mix: 'Master Mix'
+};
+const CATEGORY_ORDER = ['gojuon', 'dakuten_handakuten', 'yoon', 'master_mix'];
 
 const LS = {
   theme: 'st_theme',
   speedrun: 'st_speedrun',
-  unlocked: (cat) => `st_unlocked_${ACTIVE_SCRIPT}_${cat}`,
-  cleared:  (cat, lvl) => `st_cleared_${ACTIVE_SCRIPT}_${cat}_${lvl}`,
-  highscore: (cat, lvl) => `st_highscore_${ACTIVE_SCRIPT}_${cat}_${lvl}`
+  sakuraFall: 'st_sakura_fall',
+  unlocked: (alpha, cat) => `st_unlocked_${alpha}_${cat}`,
+  cleared:  (alpha, cat, pos) => `st_cleared_${alpha}_${cat}_${pos}`,
+  highscore: (alpha, cat, pos) => `st_highscore_${alpha}_${cat}_${pos}`
 };
 
-const CATEGORY_ORDER = ['dasar', 'dakuten', 'handakuten', 'yoon', 'master'];
-const CATEGORY_LABEL_FALLBACK = { master: 'Master Mix' };
+let DATA = {};        // { hiragana: [levels...], katakana: [...], kanji: [...] }
+let AVAILABLE = {};   // { hiragana: true, katakana: true, kanji: false }
 
-let DATA = null;           // parsed hiragana.json
-let activeCategory = 'dasar';
-let activeLevelMeta = null; // { category, level, name, characters, value, aliases, max_point, time }
+let currentAlphabet = 'hiragana';
+let activeCategory = 'gojuon';
+let activeLevelMeta = null;   // the level object currently being played
+let activeLevelPos = null;    // 1-based position within its category (used for unlock/highscore keys)
 
-// Live round state
 let state = {
   score: 0,
   point: 0,
   timeLeft: 60,
   timerId: null,
   charIdx: -1,
-  locked: false // true while feedback delay is blocking input (non-speedrun)
+  locked: false
 };
 
 let settings = {
   theme: localStorage.getItem(LS.theme) || 'light',
-  speedrun: localStorage.getItem(LS.speedrun) === 'true'
+  speedrun: localStorage.getItem(LS.speedrun) === 'true',
+  sakuraFall: localStorage.getItem(LS.sakuraFall) !== 'false' // default ON
 };
 
 /* ---------------------------------------------------------------------- */
-/* Bootstrapping                                                          */
+/* Bootstrapping / Loading screen                                         */
 /* ---------------------------------------------------------------------- */
 
 $(async function () {
   applyTheme(settings.theme, false);
   $('#setting_speedrun').prop('checked', settings.speedrun);
+  $('#setting_sakura_fall').prop('checked', settings.sakuraFall);
 
-  try {
-    DATA = await fetchJSON(DATA_SOURCES[ACTIVE_SCRIPT]);
-  } catch (err) {
-    console.error('Gagal memuat data:', err);
-    alert('Gagal memuat hiragana.json. Pastikan file ini dibuka lewat server lokal (bukan file://).');
-    return;
-  }
+  spawnPetals(28);
+  applySakuraFall(settings.sakuraFall);
+
+  await loadAllData();
 
   bindNav();
+  bindMainNav();
   bindSettings();
   bindPlay();
   bindGameOver();
 
+  const firstAvailable = Object.keys(DATA_SOURCES).find((a) => AVAILABLE[a]);
+  currentAlphabet = firstAvailable || 'hiragana';
+  renderMainNav();
   renderCategoryTabs();
   renderLevelGrid();
+  updateMenuAlphabetLabel();
+
+  $('#loading_screen').addClass('hidden');
+  $('#app_shell').removeClass('hidden');
 });
+
+async function loadAllData() {
+  const keys = Object.keys(DATA_SOURCES);
+  let done = 0;
+  await Promise.all(keys.map(async (alpha) => {
+    $('#loading_status').text(`Memuat ${alpha}.json…`);
+    try {
+      DATA[alpha] = await fetchJSON(DATA_SOURCES[alpha]);
+      AVAILABLE[alpha] = true;
+    } catch (err) {
+      DATA[alpha] = [];
+      AVAILABLE[alpha] = false;
+    }
+    done += 1;
+    $('#loading_bar_fill').css('width', Math.round((done / keys.length) * 100) + '%');
+  }));
+  $('#loading_status').text('Menyiapkan antarmuka…');
+}
 
 async function fetchJSON(url) {
   const res = await fetch(url, { cache: 'no-store' });
@@ -84,12 +116,14 @@ function showScreen(id) {
 
 function bindNav() {
   $('#btn_play').on('click', () => {
-    // Play = jump straight into the first unlocked level of "dasar"
-    activeCategory = 'dasar';
-    const lvl = firstResumableLevel('dasar');
-    startLevel('dasar', lvl);
+    activeCategory = firstAvailableCategory(currentAlphabet);
+    if (!activeCategory) return;
+    const pos = firstResumablePosition(currentAlphabet, activeCategory);
+    const levels = levelsFor(currentAlphabet, activeCategory);
+    startLevel(currentAlphabet, activeCategory, levels[pos - 1], pos);
   });
   $('#btn_levels').on('click', () => {
+    activeCategory = firstAvailableCategory(currentAlphabet) || activeCategory;
     renderCategoryTabs();
     renderLevelGrid();
     showScreen('category_level_screen');
@@ -102,13 +136,43 @@ function bindNav() {
 }
 
 /* ---------------------------------------------------------------------- */
+/* Main navbar: Hiragana / Katakana / Kanji                               */
+/* ---------------------------------------------------------------------- */
+
+function renderMainNav() {
+  const $nav = $('#main_nav').empty();
+  Object.keys(DATA_SOURCES).forEach((alpha) => {
+    const label = { hiragana: 'あ Hiragana', katakana: 'ア Katakana', kanji: '漢 Kanji' }[alpha];
+    const $btn = $(`<button class="main-nav-btn" data-alphabet="${alpha}">${label}</button>`);
+    if (!AVAILABLE[alpha]) {
+      $btn.addClass('disabled').attr('title', `${alpha}.json belum tersedia`);
+    } else {
+      if (alpha === currentAlphabet) $btn.addClass('active');
+      $btn.on('click', () => {
+        currentAlphabet = alpha;
+        activeCategory = firstAvailableCategory(alpha) || activeCategory;
+        renderMainNav();
+        renderCategoryTabs();
+        renderLevelGrid();
+        updateMenuAlphabetLabel();
+      });
+    }
+    $nav.append($btn);
+  });
+}
+
+function updateMenuAlphabetLabel() {
+  const label = { hiragana: 'Hiragana', katakana: 'Katakana', kanji: 'Kanji' }[currentAlphabet];
+  $('#menu_alphabet_label').text(label);
+}
+
+/* ---------------------------------------------------------------------- */
 /* Settings                                                                */
 /* ---------------------------------------------------------------------- */
 
 function bindSettings() {
   $('#setting_theme .toggle-btn').on('click', function () {
-    const theme = $(this).data('theme');
-    applyTheme(theme, true);
+    applyTheme($(this).data('theme'), true);
   });
 
   $('#setting_speedrun').on('change', function () {
@@ -116,14 +180,22 @@ function bindSettings() {
     localStorage.setItem(LS.speedrun, String(settings.speedrun));
   });
 
+  $('#setting_sakura_fall').on('change', function () {
+    settings.sakuraFall = $(this).is(':checked');
+    localStorage.setItem(LS.sakuraFall, String(settings.sakuraFall));
+    applySakuraFall(settings.sakuraFall);
+  });
+
   $('#btn_delete').on('click', function () {
     if (!confirm('Hapus semua progress, high score, dan setting?')) return;
     Object.keys(localStorage)
       .filter((k) => k.startsWith('st_'))
       .forEach((k) => localStorage.removeItem(k));
-    settings = { theme: 'light', speedrun: false };
+    settings = { theme: 'light', speedrun: false, sakuraFall: true };
     applyTheme('light', false);
     $('#setting_speedrun').prop('checked', false);
+    $('#setting_sakura_fall').prop('checked', true);
+    applySakuraFall(true);
     renderLevelGrid();
     alert('Data berhasil dihapus.');
   });
@@ -138,16 +210,66 @@ function applyTheme(theme, persist) {
 }
 
 /* ---------------------------------------------------------------------- */
-/* Category tabs + level grid                                             */
+/* Falling sakura petals                                                  */
 /* ---------------------------------------------------------------------- */
+
+function spawnPetals(count) {
+  const $layer = $('#petal-layer').empty();
+  for (let i = 0; i < count; i++) {
+    const left = Math.random() * 100;
+    const duration = 7 + Math.random() * 8;
+    const delay = Math.random() * 10;
+    const swayDuration = 2 + Math.random() * 2;
+    const size = 8 + Math.random() * 8;
+    const $p = $('<div class="petal"></div>').css({
+      left: left + 'vw',
+      width: size + 'px',
+      height: size + 'px',
+      animationDuration: `${duration}s, ${swayDuration}s`,
+      animationDelay: `${delay}s, ${delay}s`
+    });
+    $layer.append($p);
+  }
+}
+
+function applySakuraFall(on) {
+  $('#petal-layer').toggleClass('active', !!on);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Category tabs + level grid (JSON-driven)                               */
+/* ---------------------------------------------------------------------- */
+
+function levelsFor(alpha, category) {
+  return (DATA[alpha] || [])
+    .filter((l) => l.category === category)
+    .sort((a, b) => a.level - b.level);
+}
+
+function categoriesFor(alpha) {
+  const set = new Set((DATA[alpha] || []).map((l) => l.category));
+  return CATEGORY_ORDER.filter((c) => set.has(c));
+}
+
+function firstAvailableCategory(alpha) {
+  const cats = categoriesFor(alpha);
+  return cats.length ? cats[0] : null;
+}
 
 function renderCategoryTabs() {
   const $row = $('#category_tabs').empty();
-  CATEGORY_ORDER.forEach((cat) => {
-    const label = cat === 'master'
-      ? CATEGORY_LABEL_FALLBACK.master
-      : (DATA.categories[cat] ? DATA.categories[cat].label : cat);
-    const $btn = $(`<button class="cat-tab" data-cat="${cat}">${label}</button>`);
+
+  if (!AVAILABLE[currentAlphabet]) {
+    $row.append(`<p class="empty-state">Data untuk ${currentAlphabet} belum tersedia.</p>`);
+    $('#level_grid').empty();
+    return;
+  }
+
+  const cats = categoriesFor(currentAlphabet);
+  if (!cats.includes(activeCategory)) activeCategory = cats[0];
+
+  cats.forEach((cat) => {
+    const $btn = $(`<button class="cat-tab" data-cat="${cat}">${CATEGORY_LABELS[cat] || cat}</button>`);
     if (cat === activeCategory) $btn.addClass('active');
     $btn.on('click', () => {
       activeCategory = cat;
@@ -161,94 +283,60 @@ function renderCategoryTabs() {
 
 function renderLevelGrid() {
   const $grid = $('#level_grid').empty();
+  if (!AVAILABLE[currentAlphabet]) return;
 
-  if (activeCategory === 'master') {
-    const pool = buildMasterPool();
-    const hi = localStorage.getItem(`st_highscore_${ACTIVE_SCRIPT}_master`) || 0;
-    const $card = $(`
-      <div class="level-card master">
-        <div class="lc-name">🔀 Master Mix</div>
-        <div class="lc-high">${pool.characters.length} karakter · Best: ${hi}</div>
-      </div>`);
-    $card.on('click', () => startLevel('master', pool));
-    $grid.append($card);
-    return;
-  }
+  const levels = levelsFor(currentAlphabet, activeCategory);
+  const unlocked = getUnlockedCount(currentAlphabet, activeCategory);
 
-  const levels = DATA.categories[activeCategory].levels;
-  const unlocked = getUnlockedCount(activeCategory);
-
-  levels.forEach((lvl) => {
-    const isLocked = lvl.level > unlocked;
-    const isCleared = !!localStorage.getItem(LS.cleared(activeCategory, lvl.level));
-    const hi = localStorage.getItem(LS.highscore(activeCategory, lvl.level)) || 0;
+  levels.forEach((lvl, i) => {
+    const pos = i + 1; // position within this category (used for unlock/highscore keys)
+    const isLocked = pos > unlocked;
+    const isCleared = !!localStorage.getItem(LS.cleared(currentAlphabet, activeCategory, pos));
+    const hi = localStorage.getItem(LS.highscore(currentAlphabet, activeCategory, pos)) || 0;
+    const isBoss = activeCategory === 'master_mix' && pos === levels.length;
 
     const $card = $(`
-      <div class="level-card ${isLocked ? 'locked' : ''} ${isCleared ? 'cleared' : ''}">
+      <div class="level-card ${isLocked ? 'locked' : ''} ${isCleared ? 'cleared' : ''} ${isBoss ? 'boss' : ''}">
         <div class="lc-name">${lvl.name}</div>
         <div class="lc-high">${isLocked ? '🔒' : 'Best: ' + hi}</div>
       </div>`);
 
     if (!isLocked) {
-      $card.on('click', () => startLevel(activeCategory, lvl));
+      $card.on('click', () => startLevel(currentAlphabet, activeCategory, lvl, pos));
     }
     $grid.append($card);
   });
 }
 
-function getUnlockedCount(cat) {
-  const raw = localStorage.getItem(LS.unlocked(cat));
-  return raw ? parseInt(raw, 10) : 1; // first level always unlocked
+function getUnlockedCount(alpha, cat) {
+  const raw = localStorage.getItem(LS.unlocked(alpha, cat));
+  return raw ? parseInt(raw, 10) : 1;
 }
 
-function firstResumableLevel(cat) {
-  const unlocked = getUnlockedCount(cat);
-  const levels = DATA.categories[cat].levels;
-  return levels.find((l) => l.level === unlocked) || levels[0];
-}
-
-function buildMasterPool() {
-  // Combine characters/value/aliases from every unlocked level across every real category
-  const characters = [], value = [], aliases = [];
-  ['dasar', 'dakuten', 'handakuten', 'yoon'].forEach((cat) => {
-    const unlocked = getUnlockedCount(cat);
-    DATA.categories[cat].levels
-      .filter((l) => l.level <= unlocked)
-      .forEach((l) => {
-        l.characters.forEach((c, i) => {
-          characters.push(c);
-          value.push(l.value[i]);
-          aliases.push(l.aliases[i]);
-        });
-      });
-  });
-  return {
-    category: 'master',
-    level: null,
-    name: 'Master Mix',
-    characters, value, aliases,
-    max_point: 100,
-    time: 60
-  };
+function firstResumablePosition(alpha, cat) {
+  const unlocked = getUnlockedCount(alpha, cat);
+  const levels = levelsFor(alpha, cat);
+  return Math.min(unlocked, levels.length);
 }
 
 /* ---------------------------------------------------------------------- */
 /* Play screen / round logic                                              */
 /* ---------------------------------------------------------------------- */
 
-function startLevel(category, levelMeta) {
-  activeCategory = category === 'master' ? 'master' : category;
+function startLevel(alpha, category, levelMeta, pos) {
+  currentAlphabet = alpha;
+  activeCategory = category;
   activeLevelMeta = levelMeta;
+  activeLevelPos = pos;
 
   state.score = 0;
   state.point = 0;
   state.timeLeft = levelMeta.time;
   state.locked = false;
 
-  $('#play_mode_label').text(category === 'master' ? 'Master Mix' : DATA.categories[category].label);
+  $('#play_mode_label').text(CATEGORY_LABELS[category] || category);
   $('#play_level_label').text(levelMeta.name);
   updateHud();
-  updateTimerBar();
 
   showScreen('play_screen');
   nextQuestion();
@@ -296,10 +384,9 @@ function submitAnswer() {
 
   const $char = $('#play_question');
   $char.removeClass('shake pop');
-  void $char[0].offsetWidth; // restart animation
+  void $char[0].offsetWidth;
   $char.addClass(correct ? 'pop' : 'shake');
 
-  // Win / lose checks
   if (state.point >= activeLevelMeta.max_point) {
     finishRound(true);
     return;
@@ -310,7 +397,6 @@ function submitAnswer() {
   }
 
   if (settings.speedrun) {
-    // No delay, no warning text — go straight to the next character.
     nextQuestion();
   } else {
     state.locked = true;
@@ -370,21 +456,18 @@ function updateTimerBar() {
 function finishRound(won) {
   stopTimer();
 
-  // Persist high score
-  const hsKey = activeCategory === 'master'
-    ? `st_highscore_${ACTIVE_SCRIPT}_master`
-    : LS.highscore(activeCategory, activeLevelMeta.level);
+  const hsKey = LS.highscore(currentAlphabet, activeCategory, activeLevelPos);
   const prevHi = parseInt(localStorage.getItem(hsKey) || '0', 10);
   if (state.score > prevHi) localStorage.setItem(hsKey, String(state.score));
 
   let unlockedNext = false;
-  if (won && activeCategory !== 'master') {
-    localStorage.setItem(LS.cleared(activeCategory, activeLevelMeta.level), 'true');
-    const unlocked = getUnlockedCount(activeCategory);
-    const levels = DATA.categories[activeCategory].levels;
-    const isLast = activeLevelMeta.level >= levels[levels.length - 1].level;
-    if (activeLevelMeta.level === unlocked && !isLast) {
-      localStorage.setItem(LS.unlocked(activeCategory), String(unlocked + 1));
+  if (won) {
+    localStorage.setItem(LS.cleared(currentAlphabet, activeCategory, activeLevelPos), 'true');
+    const unlocked = getUnlockedCount(currentAlphabet, activeCategory);
+    const levels = levelsFor(currentAlphabet, activeCategory);
+    const isLast = activeLevelPos >= levels.length;
+    if (activeLevelPos === unlocked && !isLast) {
+      localStorage.setItem(LS.unlocked(currentAlphabet, activeCategory), String(unlocked + 1));
       unlockedNext = true;
     }
   }
@@ -395,14 +478,12 @@ function finishRound(won) {
   if (won) {
     $('#go_emoji').text('🌸');
     $('#go_title').text('Level Clear!');
-    $('#go_status').text(activeCategory === 'master'
-      ? 'Kerja bagus menaklukkan Master Mix!'
-      : (unlockedNext ? 'Level berikutnya sudah terbuka.' : 'Kategori ini sudah selesai — coba Master Mix!'));
-    $('#btn_next_level').toggleClass('hidden', !unlockedNext).data('next', unlockedNext);
+    $('#go_status').text(unlockedNext ? 'Level berikutnya sudah terbuka.' : 'Kategori ini sudah selesai — coba kategori lain!');
+    $('#btn_next_level').toggleClass('hidden', !unlockedNext);
   } else {
     $('#go_emoji').text('🍂');
     $('#go_title').text('Game Over');
-    $('#go_status').text(state.timeLeft <= 0 ? 'Waktu habis sebelum mencapai 100 point.' : 'Point kamu jatuh di bawah 0.');
+    $('#go_status').text(state.timeLeft <= 0 ? `Waktu habis sebelum mencapai ${activeLevelMeta.max_point} point.` : 'Point kamu jatuh di bawah 0.');
     $('#btn_next_level').addClass('hidden');
   }
 
@@ -410,15 +491,19 @@ function finishRound(won) {
 }
 
 function bindGameOver() {
-  $('#btn_replay').on('click', () => startLevel(activeCategory, activeLevelMeta));
+  $('#btn_replay').on('click', () => startLevel(currentAlphabet, activeCategory, activeLevelMeta, activeLevelPos));
   $('#btn_next_level').on('click', () => {
-    const levels = DATA.categories[activeCategory].levels;
-    const next = levels.find((l) => l.level === activeLevelMeta.level + 1);
-    if (next) startLevel(activeCategory, next);
+    const levels = levelsFor(currentAlphabet, activeCategory);
+    const next = levels[activeLevelPos]; // levels is 0-indexed, activeLevelPos is 1-indexed -> this is the next one
+    if (next) startLevel(currentAlphabet, activeCategory, next, activeLevelPos + 1);
   });
   $('#btn_menu').on('click', () => {
     renderCategoryTabs();
     renderLevelGrid();
     showScreen('menu_screen');
   });
+}
+
+function bindMainNav() {
+  // click handlers are (re)bound inside renderMainNav() since the buttons are re-created each render
 }
