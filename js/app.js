@@ -1,39 +1,71 @@
 /* ==========================================================================
    SakuraType — app.js
-   Loading screen, multi-alphabet navbar (Hiragana/Katakana/Kanji), JSON-driven
-   sub-tabs & level grid, timer, scoring, LocalStorage progress, sakura petals.
+   Loading screen, multi-alphabet navbar (Hiragana/Katakana/Kanji N5/Kanji N4),
+   JSON-driven sub-tabs & level grid, timer, scoring, LocalStorage progress.
    ========================================================================== */
 
 const DATA_SOURCES = {
   hiragana: 'data/hiragana.json',
   katakana: 'data/katakana.json',
-  kanji: 'data/kanji.json' // not shipped yet -> nav tab auto-disables
+  kanji_n5: 'data/kanji.json',
+  kanji_n4: 'data/kanji-n4.json'
 };
 
 const CATEGORY_LABELS = {
+  // Hiragana / Katakana
   gojuon: 'Gojūon',
   dakuten_handakuten: 'Dakuten & Handakuten',
   yoon: 'Yōon',
+
+  // Kanji N5
+  angka: 'Angka',
+  waktu: 'Waktu',
+  alam: 'Alam',
+  orang_tubuh: 'Orang & Tubuh',
+  kata_kerja: 'Kata Kerja',
+  arah_tempat: 'Arah & Tempat',
+  sifat: 'Sifat',
+
+  // Kanji N4
+  transportasi: 'Transportasi & Jalan',
+  sekolah_belajar: 'Belajar & Sekolah',
+  belanja_ekonomi: 'Belanja & Ekonomi',
+  kegiatan_kerja: 'Kegiatan & Kerja',
+  keluarga_sosial: 'Keluarga & Sosial',
+  cuaca_alam: 'Cuaca & Alam',
+  sifat_kondisi: 'Sifat & Kondisi',
+
+  // Shared
   master_mix: 'Master Mix'
 };
-const CATEGORY_ORDER = ['gojuon', 'dakuten_handakuten', 'yoon', 'master_mix'];
+
+const CATEGORY_ORDER_BY_ALPHA = {
+  hiragana: ['gojuon', 'dakuten_handakuten', 'yoon', 'master_mix'],
+  katakana: ['gojuon', 'dakuten_handakuten', 'yoon', 'master_mix'],
+  kanji_n5: ['angka', 'waktu', 'alam', 'orang_tubuh', 'kata_kerja', 'arah_tempat', 'sifat', 'master_mix'],
+  kanji_n4: ['transportasi', 'sekolah_belajar', 'belanja_ekonomi', 'kegiatan_kerja', 'keluarga_sosial', 'cuaca_alam', 'sifat_kondisi', 'master_mix']
+};
 
 const LS = {
   theme: 'st_theme',
   speedrun: 'st_speedrun',
   sakuraFall: 'st_sakura_fall',
+  kanjiMode: 'st_kanji_mode',
   unlocked: (alpha, cat) => `st_unlocked_${alpha}_${cat}`,
   cleared:  (alpha, cat, pos) => `st_cleared_${alpha}_${cat}_${pos}`,
   highscore: (alpha, cat, pos) => `st_highscore_${alpha}_${cat}_${pos}`
 };
 
-let DATA = {};        // { hiragana: [levels...], katakana: [...], kanji: [...] }
-let AVAILABLE = {};   // { hiragana: true, katakana: true, kanji: false }
+let DATA = {};        // { hiragana: [...], katakana: [...], kanji_n5: [...], kanji_n4: [...] }
+let AVAILABLE = {};   // { hiragana: true, katakana: true, kanji_n5: true, kanji_n4: true }
 
 let currentAlphabet = 'hiragana';
 let activeCategory = 'gojuon';
 let activeLevelMeta = null;   // the level object currently being played
-let activeLevelPos = null;    // 1-based position within its category (used for unlock/highscore keys)
+let activeLevelPos = null;    // 1-based position within its category
+
+let kanjiQuizMode = localStorage.getItem(LS.kanjiMode) || 'both'; // 'both' | 'reading' | 'meaning'
+let currentQuestionType = 'reading'; // 'reading' | 'meaning'
 
 let state = {
   score: 0,
@@ -49,6 +81,10 @@ let settings = {
   speedrun: localStorage.getItem(LS.speedrun) === 'true',
   sakuraFall: localStorage.getItem(LS.sakuraFall) !== 'false' // default ON
 };
+
+function isKanjiAlphabet(alpha) {
+  return alpha === 'kanji_n5' || alpha === 'kanji_n4' || alpha === 'kanji';
+}
 
 /* ---------------------------------------------------------------------- */
 /* Bootstrapping / Loading screen                                         */
@@ -69,13 +105,17 @@ $(async function () {
   bindSettings();
   bindPlay();
   bindGameOver();
+  bindKanjiMode();
 
   const firstAvailable = Object.keys(DATA_SOURCES).find((a) => AVAILABLE[a]);
   currentAlphabet = firstAvailable || 'hiragana';
+  activeCategory = firstAvailableCategory(currentAlphabet);
+
   renderMainNav();
   renderCategoryTabs();
   renderLevelGrid();
   updateMenuAlphabetLabel();
+  updateKanjiModeUI();
 
   $('#loading_screen').addClass('hidden');
   $('#app_shell').removeClass('hidden');
@@ -88,7 +128,7 @@ async function loadAllData() {
     $('#loading_status').text(`Memuat ${alpha}.json…`);
     try {
       DATA[alpha] = await fetchJSON(DATA_SOURCES[alpha]);
-      AVAILABLE[alpha] = true;
+      AVAILABLE[alpha] = Array.isArray(DATA[alpha]) && DATA[alpha].length > 0;
     } catch (err) {
       DATA[alpha] = [];
       AVAILABLE[alpha] = false;
@@ -116,7 +156,7 @@ function showScreen(id) {
 
 function bindNav() {
   $('#btn_play').on('click', () => {
-    activeCategory = firstAvailableCategory(currentAlphabet);
+    activeCategory = firstAvailableCategory(currentAlphabet) || activeCategory;
     if (!activeCategory) return;
     const pos = firstResumablePosition(currentAlphabet, activeCategory);
     const levels = levelsFor(currentAlphabet, activeCategory);
@@ -126,6 +166,7 @@ function bindNav() {
     activeCategory = firstAvailableCategory(currentAlphabet) || activeCategory;
     renderCategoryTabs();
     renderLevelGrid();
+    updateKanjiModeUI();
     showScreen('category_level_screen');
   });
   $('#btn_setting').on('click', () => showScreen('setting_screen'));
@@ -136,13 +177,19 @@ function bindNav() {
 }
 
 /* ---------------------------------------------------------------------- */
-/* Main navbar: Hiragana / Katakana / Kanji                               */
+/* Main navbar: Hiragana / Katakana / Kanji N5 / Kanji N4                 */
 /* ---------------------------------------------------------------------- */
 
 function renderMainNav() {
   const $nav = $('#main_nav').empty();
   Object.keys(DATA_SOURCES).forEach((alpha) => {
-    const label = { hiragana: 'あ Hiragana', katakana: 'ア Katakana', kanji: '漢 Kanji' }[alpha];
+    const label = {
+      hiragana: 'あ Hiragana',
+      katakana: 'ア Katakana',
+      kanji_n5: '漢 Kanji N5',
+      kanji_n4: '漢 Kanji N4'
+    }[alpha] || alpha;
+
     const $btn = $(`<button class="main-nav-btn" data-alphabet="${alpha}">${label}</button>`);
     if (!AVAILABLE[alpha]) {
       $btn.addClass('disabled').attr('title', `${alpha}.json belum tersedia`);
@@ -155,6 +202,7 @@ function renderMainNav() {
         renderCategoryTabs();
         renderLevelGrid();
         updateMenuAlphabetLabel();
+        updateKanjiModeUI();
       });
     }
     $nav.append($btn);
@@ -162,8 +210,29 @@ function renderMainNav() {
 }
 
 function updateMenuAlphabetLabel() {
-  const label = { hiragana: 'Hiragana', katakana: 'Katakana', kanji: 'Kanji' }[currentAlphabet];
+  const label = {
+    hiragana: 'Hiragana',
+    katakana: 'Katakana',
+    kanji_n5: 'Kanji N5',
+    kanji_n4: 'Kanji N4'
+  }[currentAlphabet] || currentAlphabet;
   $('#menu_alphabet_label').text(label);
+}
+
+function bindKanjiMode() {
+  $('#kanji_mode_selector .toggle-btn').on('click', function () {
+    kanjiQuizMode = $(this).data('mode');
+    localStorage.setItem(LS.kanjiMode, kanjiQuizMode);
+    $('#kanji_mode_selector .toggle-btn').removeClass('active');
+    $(this).addClass('active');
+  });
+}
+
+function updateKanjiModeUI() {
+  const isKanji = isKanjiAlphabet(currentAlphabet);
+  $('#kanji_mode_selector').toggleClass('hidden', !isKanji);
+  $('#kanji_mode_selector .toggle-btn').removeClass('active');
+  $(`#kanji_mode_selector .toggle-btn[data-mode="${kanjiQuizMode}"]`).addClass('active');
 }
 
 /* ---------------------------------------------------------------------- */
@@ -192,10 +261,12 @@ function bindSettings() {
       .filter((k) => k.startsWith('st_'))
       .forEach((k) => localStorage.removeItem(k));
     settings = { theme: 'light', speedrun: false, sakuraFall: true };
+    kanjiQuizMode = 'both';
     applyTheme('light', false);
     $('#setting_speedrun').prop('checked', false);
     $('#setting_sakura_fall').prop('checked', true);
     applySakuraFall(true);
+    updateKanjiModeUI();
     renderLevelGrid();
     alert('Data berhasil dihapus.');
   });
@@ -248,7 +319,12 @@ function levelsFor(alpha, category) {
 
 function categoriesFor(alpha) {
   const set = new Set((DATA[alpha] || []).map((l) => l.category));
-  return CATEGORY_ORDER.filter((c) => set.has(c));
+  const order = CATEGORY_ORDER_BY_ALPHA[alpha] || [];
+  const known = order.filter((c) => set.has(c));
+  set.forEach((c) => {
+    if (!known.includes(c)) known.push(c);
+  });
+  return known;
 }
 
 function firstAvailableCategory(alpha) {
@@ -269,7 +345,8 @@ function renderCategoryTabs() {
   if (!cats.includes(activeCategory)) activeCategory = cats[0];
 
   cats.forEach((cat) => {
-    const $btn = $(`<button class="cat-tab" data-cat="${cat}">${CATEGORY_LABELS[cat] || cat}</button>`);
+    const label = CATEGORY_LABELS[cat] || cat;
+    const $btn = $(`<button class="cat-tab" data-cat="${cat}">${label}</button>`);
     if (cat === activeCategory) $btn.addClass('active');
     $btn.on('click', () => {
       activeCategory = cat;
@@ -289,7 +366,7 @@ function renderLevelGrid() {
   const unlocked = getUnlockedCount(currentAlphabet, activeCategory);
 
   levels.forEach((lvl, i) => {
-    const pos = i + 1; // position within this category (used for unlock/highscore keys)
+    const pos = i + 1;
     const isLocked = pos > unlocked;
     const isCleared = !!localStorage.getItem(LS.cleared(currentAlphabet, activeCategory, pos));
     const hi = localStorage.getItem(LS.highscore(currentAlphabet, activeCategory, pos)) || 0;
@@ -334,9 +411,18 @@ function startLevel(alpha, category, levelMeta, pos) {
   state.timeLeft = levelMeta.time;
   state.locked = false;
 
-  $('#play_mode_label').text(CATEGORY_LABELS[category] || category);
+  const catLabel = CATEGORY_LABELS[category] || category;
+  $('#play_mode_label').text(catLabel);
   $('#play_level_label').text(levelMeta.name);
   updateHud();
+
+  // Adjust style for kanji vs kana
+  const $q = $('#play_question');
+  if (isKanjiAlphabet(alpha)) {
+    $q.addClass('kanji-mode');
+  } else {
+    $q.removeClass('kanji-mode');
+  }
 
   showScreen('play_screen');
   nextQuestion();
@@ -360,18 +446,71 @@ function nextQuestion() {
   } while (chars.length > 1 && idx === state.charIdx);
   state.charIdx = idx;
 
+  const isKanji = isKanjiAlphabet(currentAlphabet);
+
+  // Tentukan jenis pertanyaan (bacaan vs arti)
+  if (isKanji) {
+    if (kanjiQuizMode === 'reading') {
+      currentQuestionType = 'reading';
+    } else if (kanjiQuizMode === 'meaning') {
+      currentQuestionType = 'meaning';
+    } else {
+      // 'both' -> acak 50:50
+      currentQuestionType = Math.random() < 0.5 ? 'reading' : 'meaning';
+    }
+  } else {
+    currentQuestionType = 'reading';
+  }
+
+  // Update prompt badge & placeholder
+  const $badge = $('#play_prompt_type');
+  const $input = $('#play_input');
+
+  if (isKanji) {
+    $badge.removeClass('hidden');
+    if (currentQuestionType === 'meaning') {
+      $badge.text('Arti Bahasa Indonesia');
+      $input.attr('placeholder', 'ketik arti...');
+    } else {
+      $badge.text('Bacaan (Romaji)');
+      $input.attr('placeholder', 'ketik romaji...');
+    }
+  } else {
+    $badge.addClass('hidden');
+    $input.attr('placeholder', 'ketik romaji...');
+  }
+
   $('#play_question').text(chars[idx]).removeClass('shake pop');
   $('#play_feedback').text('');
-  $('#play_input').val('').prop('disabled', false).trigger('focus');
+  $input.val('').prop('disabled', false).trigger('focus');
+}
+
+function cleanInput(str) {
+  return (str || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
+    .replace(/\s+/g, ' ');
 }
 
 function submitAnswer() {
   if (state.locked) return;
-  const raw = $('#play_input').val().trim().toLowerCase();
+  const raw = cleanInput($('#play_input').val());
   if (!raw) return;
 
   const idx = state.charIdx;
-  const accepted = activeLevelMeta.aliases[idx] || [activeLevelMeta.value[idx]];
+  let accepted = [];
+
+  if (currentQuestionType === 'meaning') {
+    const primaryMeaning = cleanInput(activeLevelMeta.meaning ? activeLevelMeta.meaning[idx] : '');
+    const aliases = (activeLevelMeta.meaning_aliases && activeLevelMeta.meaning_aliases[idx]) || [];
+    accepted = [primaryMeaning, ...aliases.map(cleanInput)].filter(Boolean);
+  } else {
+    const primaryVal = cleanInput(activeLevelMeta.value[idx]);
+    const aliases = (activeLevelMeta.aliases && activeLevelMeta.aliases[idx]) || [];
+    accepted = [primaryVal, ...aliases.map(cleanInput)].filter(Boolean);
+  }
+
   const correct = accepted.includes(raw);
 
   if (correct) {
@@ -402,16 +541,26 @@ function submitAnswer() {
     state.locked = true;
     $('#play_input').prop('disabled', true);
     if (!correct) {
-      $('#play_feedback')
-        .removeClass('correct')
-        .text(`Salah! ${activeLevelMeta.characters[idx]} = ${activeLevelMeta.value[idx]}`);
+      if (isKanjiAlphabet(currentAlphabet)) {
+        const readings = (activeLevelMeta.aliases && activeLevelMeta.aliases[idx]) 
+          ? activeLevelMeta.aliases[idx].slice(0, 3).join(', ') 
+          : activeLevelMeta.value[idx];
+        const meaning = activeLevelMeta.meaning ? activeLevelMeta.meaning[idx] : '';
+        $('#play_feedback')
+          .removeClass('correct')
+          .text(`Salah! ${activeLevelMeta.characters[idx]} = ${readings} · ${meaning}`);
+      } else {
+        $('#play_feedback')
+          .removeClass('correct')
+          .text(`Salah! ${activeLevelMeta.characters[idx]} = ${activeLevelMeta.value[idx]}`);
+      }
     } else {
       $('#play_feedback').addClass('correct').text('Benar!');
     }
     setTimeout(() => {
       state.locked = false;
       nextQuestion();
-    }, 500);
+    }, 600);
   }
 }
 
@@ -494,7 +643,7 @@ function bindGameOver() {
   $('#btn_replay').on('click', () => startLevel(currentAlphabet, activeCategory, activeLevelMeta, activeLevelPos));
   $('#btn_next_level').on('click', () => {
     const levels = levelsFor(currentAlphabet, activeCategory);
-    const next = levels[activeLevelPos]; // levels is 0-indexed, activeLevelPos is 1-indexed -> this is the next one
+    const next = levels[activeLevelPos];
     if (next) startLevel(currentAlphabet, activeCategory, next, activeLevelPos + 1);
   });
   $('#btn_menu').on('click', () => {
@@ -505,5 +654,5 @@ function bindGameOver() {
 }
 
 function bindMainNav() {
-  // click handlers are (re)bound inside renderMainNav() since the buttons are re-created each render
+  // click handlers are bound inside renderMainNav()
 }

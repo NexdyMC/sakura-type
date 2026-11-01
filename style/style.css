@@ -393,6 +393,16 @@ body{
   color: var(--sakura-ink);
   transition: transform .12s ease, color .12s ease;
 }
+.hiragana-char.kanji-mode{
+  font-weight: 500;
+  font-size: 5.5rem;
+  letter-spacing: 0.05em;
+}
+@media (min-width: 640px) {
+  .hiragana-char.kanji-mode{
+    font-size: 6.5rem;
+  }
+}
 .hiragana-char.shake{ animation: shake .35s ease; color: var(--sakura-bad); }
 .hiragana-char.pop{ animation: pop .35s ease; }
 @keyframes shake{

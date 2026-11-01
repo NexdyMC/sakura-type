@@ -75,7 +75,7 @@
     </section>
 
     <!-- ============ CATEGORY / LEVEL SCREEN ============ -->
-    <section id="category_level_screen" class="screen hidden">
+    <section id="category_level_screen" class="screen hidden ">
       <!-- ============ MAIN NAVBAR (Hiragana / Katakana / Kanji) ============ -->
       <nav id="main_nav" class="main-nav">
         <button class="main-nav-btn" data-alphabet="hiragana">あ Hiragana</button>
@@ -83,8 +83,16 @@
         <button class="main-nav-btn" data-alphabet="kanji">漢 Kanji</button>
       </nav>
 
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-2xl font-bold">Pilih Kategori</h2>
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div class="flex items-center gap-3">
+          <h2 class="text-2xl font-bold">Pilih Kategori</h2>
+          <!-- Toggle mode jawaban Kanji (hanya tampil saat Kanji aktif) -->
+          <div id="kanji_mode_selector" class="toggle-group hidden text-xs">
+            <button data-mode="both" class="toggle-btn active">Keduanya</button>
+            <button data-mode="reading" class="toggle-btn">Bacaan</button>
+            <button data-mode="meaning" class="toggle-btn">Arti</button>
+          </div>
+        </div>
         <button class="btn-back" data-back="menu_screen">←</button>
       </div>
 
@@ -161,7 +169,7 @@
     </section>
 
     <!-- ============ PLAY SCREEN ============ -->
-    <section id="play_screen" class="screen hidden overflow-hidden">
+    <section id="play_screen" class="screen hidden overflow-hidden min-h-[90vh]">
       <!-- navbar -->
       <div class="navbar flex items-center justify-between mb-2">
         <div class="flex gap-4 sm:gap-6">
@@ -185,8 +193,11 @@
       </div>
 
       <!-- soal -->
-      <div class="text-center my-10">
-        <p id="play_feedback" class="text-sm h-5 mb-2 text-red-500 font-semibold"></p>
+      <div class="text-center my-8">
+        <p id="play_feedback" class="text-sm min-h-[1.5rem] mb-2 text-red-500 font-semibold"></p>
+        <div class="mb-2">
+          <span id="play_prompt_type" class="hidden text-xs font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-[var(--sakura-bg-soft)] text-[var(--sakura-accent)] border border-[var(--sakura-line)]">Bacaan</span>
+        </div>
         <label id="play_question" class="block hiragana-char text-7xl sm:text-8xl font-bold mb-6">あ</label>
         <input
           id="play_input"
